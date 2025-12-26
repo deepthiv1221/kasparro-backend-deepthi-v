@@ -16,13 +16,21 @@ PARAMS = {
 }
 
 def fetch_and_store_coingecko():
+    db = SessionLocal()
+
+    # 🔁 INCREMENTAL CHECK
+    existing = db.query(RawCryptoData).filter_by(source="coingecko").first()
+    if existing:
+        logging.info("CoinGecko data already ingested. Skipping.")
+        db.close()
+        return
+
     response = requests.get(COINGECKO_URL, params=PARAMS, timeout=10)
     response.raise_for_status()
 
     data = response.json()
     logging.info(f"Fetched {len(data)} records from CoinGecko")
 
-    db = SessionLocal()
     try:
         record = RawCryptoData(
             source="coingecko",

@@ -8,8 +8,8 @@ app = FastAPI()
 def health():
     return {"status": "ok"}
 
-@app.get("/crypto-data")
-def get_crypto_data():
+@app.get("/data")
+def get_data():
     db = SessionLocal()
     try:
         latest = (
@@ -24,7 +24,19 @@ def get_crypto_data():
         return {
             "source": latest.source,
             "fetched_at": latest.fetched_at,
-            "data_count": len(latest.data),
+            "records": len(latest.data)
+        }
+    finally:
+        db.close()
+
+@app.get("/stats")
+def stats():
+    db = SessionLocal()
+    try:
+        total = db.query(RawCryptoData).count()
+        return {
+            "total_ingestion_runs": total,
+            "status": "ok"
         }
     finally:
         db.close()

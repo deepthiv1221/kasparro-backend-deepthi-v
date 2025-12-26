@@ -1,11 +1,23 @@
-from sqlalchemy import Column, Integer, String, JSON, DateTime
+from sqlalchemy import Column, Integer, String, Float, DateTime, JSON
+from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
-from core.db import Base   # 👈 THIS IS THE KEY FIX
+
+Base = declarative_base()
 
 class RawCryptoData(Base):
     __tablename__ = "raw_crypto_data"
 
-    id = Column(Integer, primary_key=True, index=True)
-    source = Column(String, nullable=False)
-    data = Column(JSON, nullable=False)
+    id = Column(Integer, primary_key=True)
+    source = Column(String)
+    data = Column(JSON)
+    fetched_at = Column(DateTime, default=datetime.utcnow)
+
+class NormalizedCrypto(Base):
+    __tablename__ = "normalized_crypto"
+
+    id = Column(Integer, primary_key=True)
+    source = Column(String)
+    symbol = Column(String)
+    name = Column(String)
+    price = Column(Float)
     fetched_at = Column(DateTime, default=datetime.utcnow)

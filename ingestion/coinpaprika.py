@@ -8,13 +8,21 @@ logging.basicConfig(level=logging.INFO)
 COINPAPRIKA_URL = "https://api.coinpaprika.com/v1/tickers"
 
 def fetch_and_store_coinpaprika():
+    db = SessionLocal()
+
+    # 🔁 INCREMENTAL CHECK
+    existing = db.query(RawCryptoData).filter_by(source="coinpaprika").first()
+    if existing:
+        logging.info("CoinPaprika data already ingested. Skipping.")
+        db.close()
+        return
+
     response = requests.get(COINPAPRIKA_URL, timeout=10)
     response.raise_for_status()
 
     data = response.json()
     logging.info(f"Fetched {len(data)} records from CoinPaprika")
 
-    db = SessionLocal()
     try:
         record = RawCryptoData(
             source="coinpaprika",
