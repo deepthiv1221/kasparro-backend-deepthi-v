@@ -40,3 +40,8 @@ def stats():
         }
     finally:
         db.close()
+
+@app.get("/crypto-data")
+def crypto_data_alias():
+    return get_crypto_data()
+
